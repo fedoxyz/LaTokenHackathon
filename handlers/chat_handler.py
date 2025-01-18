@@ -2,8 +2,8 @@ from logger import logger
 from telegram import Update
 from telegram.ext import ContextTypes, MessageHandler, filters
 from utils.message_utils import  send_message
-import urllib
 import aiohttp
+from config import API_HOST
 
 async def handle_hr_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not update.message:
@@ -11,17 +11,16 @@ async def handle_hr_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     
     message = update.message.text
-    # URL encode the message
-    encoded_message = urllib.parse.quote(message)
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"https://d9a6-34-125-210-177.ngrok-free.app/generate?message={encoded_message}"
+            f"{API_HOST}/generate", 
+            json={"message": message}  # Send the message as JSON body
         ) as resp:
             result = await resp.json()
             # Extract only the part after "### Ответ:\n"
             full_response = result["response"]
-            answer = full_response.split("### Ответ:\n")[-1].strip()
+            answer = full_response.strip()
             await send_message(update, context, text=answer)
 
 # Setup the photo receipt handlers in the application
