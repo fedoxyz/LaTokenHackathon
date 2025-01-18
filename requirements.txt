@@ -1,0 +1,4 @@
+colorama
+python-dotenv
+python-telegram-bot
+aiohttp
